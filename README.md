@@ -9,7 +9,7 @@ This is the term project for parallel programming course and our team implements
 In this project, we use the equation to implement waterwave
 simulation
 
-$\frac{\partial^2{u}}{\partial{t^2}} + k\frac{\partial{u}}{\partial{t}} = c^2(\frac{\partial^2{u}}{\partial{x^2}} + \frac{\partial^2{u}}{\partial{y^2}})$
+![$\frac{\partial^2{u}}{\partial{t^2}} + k\frac{\partial{u}}{\partial{t}} = c^2(\frac{\partial^2{u}}{\partial{x^2}} + \frac{\partial^2{u}}{\partial{y^2}})$](imgs/formula.png)
 
 where parameters are
 
