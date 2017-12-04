@@ -2,22 +2,22 @@
 
 ## Description 
 
-This is the term project for parallel programming course and our team implements waterwave simulator
+This is the term project for parallel programming course and our team implements the waterwave simulator
 
 ## Theory and implementation
 
-In this project, we use the equation to implement waterwave
+In this project, we use this equation to implement waterwave
 simulation
 
 ![$\frac{\partial^2{u}}{\partial{t^2}} + k\frac{\partial{u}}{\partial{t}} = c^2(\frac{\partial^2{u}}{\partial{x^2}} + \frac{\partial^2{u}}{\partial{y^2}})$](imgs/formula.png)
 
 where parameters are
 
-- u is the abbreviation u(x, y, t)
+- u is the abbreviation of u(x, y, t)
 - k is the damping constant
 - c is the wave speed
 
-and then we usea few parallel techniques to accelerate this program
+and then we use a few parallel techniques to accelerate this program
 
 ## Build 
 
@@ -31,11 +31,11 @@ TODO : this part is reserved.
 
 - [Jim00000](https://github.com/Jim00000)
 - [ActKz](https://github.com/ActKz)
-- []()
+- [pityYo](https://github.com/pityYo)
 
 ## License
 
-Copyright (C) 2017 the team of Jim00000, ActKz and 
+Copyright (C) 2017 the team of Jim00000, ActKz and pityYo
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
