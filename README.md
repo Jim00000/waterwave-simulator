@@ -25,6 +25,8 @@ Make sure that you have installed python3 and pip3
 
 `$ pip3 install -r requirements.txt` to install necessary libraries
 
+and then `$ sh build.sh` to build the shared library for wave_equation_api
+
 TODO : this part is reserved.
 
 ## Authors
