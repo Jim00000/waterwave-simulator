@@ -21,13 +21,12 @@ from matplotlib import pyplot as plt
 from matplotlib import cm
 from mpl_toolkits.mplot3d import axes3d
 import matplotlib.animation as animation
-from wave_equation import sequential_update
 
 dt = 0.05
 C = 12
 K = 0.9
 height = 5
-grid = 1000
+grid = 60
 
 old_H = np.zeros([grid, grid], dtype=np.float64)
 H = np.ones([grid, grid], dtype=np.float64)
@@ -68,7 +67,7 @@ line = ax.plot_surface(X, Y, H)
 ax.view_init(azim=210)
 plt.xlabel('x')
 plt.ylabel('y')
-ax.set_zlim(0, 2)
+ax.set_zlim(0, 5)
 # plt.ion()
 # plt.show()
 # plt.close()
@@ -118,10 +117,5 @@ def update(frame):
     line = ax.plot_surface(X, Y, H)
     return line
 
-# ani = animation.FuncAnimation(fig, seq_update, fargs=(), interval=10, blit=False)
-# plt.show()
-
-it = 0
-while(it < 50):
-    update(0)
-    it += 1
+ani = animation.FuncAnimation(fig, update, fargs=(), interval=10, blit=False)
+plt.show()

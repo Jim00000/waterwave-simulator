@@ -27,7 +27,7 @@ dt = 0.05
 C = 12
 K = 0.9
 height = 5
-grid = 1000
+grid = 60
 
 old_H = np.zeros([grid, grid], dtype=np.float64)
 H = np.ones([grid, grid], dtype=np.float64)
@@ -85,18 +85,13 @@ def onclick(event):
 
 # cid = fig.canvas.mpl_connect('button_press_event', onclick)
 
-def seq_update(frame, line):
+def seq_update(frame):
     global H, old_H, new_H
     H, old_H, new_H = sequential_update(H, old_H, new_H, grid, grid) 
-    # ax.clear()
-    # ax.set_zlim(0, 5)
+    ax.clear()
+    ax.set_zlim(0, 5)
     line = ax.plot_surface(X, Y, H)
     return line
 
-# ani = animation.FuncAnimation(fig, seq_update, fargs=(), interval=1, blit=False)
-# plt.show()
-
-it = 0
-while(it < 10):
-    seq_update(0, line)
-    it += 1
+ani = animation.FuncAnimation(fig, seq_update, fargs=(), interval=1, blit=False)
+plt.show()

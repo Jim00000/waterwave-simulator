@@ -27,7 +27,7 @@ dt = 0.05
 C = 12
 K = 0.9
 height = 5
-grid = 1000
+grid = 60
 
 old_H = np.zeros([grid, grid], dtype=np.float64)
 H = np.ones([grid, grid], dtype=np.float64)
@@ -93,10 +93,5 @@ def omp_update(frame):
     line = ax.plot_surface(X, Y, H)
     return line
 
-# ani = animation.FuncAnimation(fig, omp_update, fargs=(), interval=1, blit=False)
-# plt.show()
-
-it = 0
-while(it < 100):
-    omp_update(0)
-    it += 1
+ani = animation.FuncAnimation(fig, omp_update, fargs=(), interval=1, blit=False)
+plt.show()
