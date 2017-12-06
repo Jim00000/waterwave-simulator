@@ -62,7 +62,7 @@ x = np.arange(grid)
 y = np.arange(grid)
 X, Y = np.meshgrid(x, y)
 fig = plt.figure()
-fig.canvas.set_window_title('Sequential in Python')
+fig.canvas.set_window_title('Sequential in C')
 ax = fig.add_subplot(111, projection='3d')
 line = ax.plot_surface(X, Y, H)
 ax.view_init(azim=210)
@@ -85,43 +85,18 @@ def onclick(event):
 
 # cid = fig.canvas.mpl_connect('button_press_event', onclick)
 
-def update(frame):
+def seq_update(frame, line):
     global H, old_H, new_H
-    for i in range(grid):
-        for j in range(grid):
-            if i + 1 >= grid:
-                i_add_dx = grid - 1
-            else:
-                i_add_dx = i + 1
-            if i - 1 <= 0:
-                i_sub_dx = 0
-            else:
-                i_sub_dx = i - 1
-            if j + 1 >= grid:
-                j_add_dy = grid - 1
-            else:
-                j_add_dy = j + 1
-            if j - 1 <= 0:
-                j_sub_dy = 0
-            else:
-                j_sub_dy = j - 1
-            # D = H[i_add_dx][j] + H[i_sub_dx][j] + H[i][j_add_dy] + H[i][j_sub_dy]
-            # new_H[i][j] = (2 * H[i][j] + pow(C, 2) * (D - 4 * H[i][j]) + old_H[i][j] * (K * dt / 2 - 1) ) / (1 + K * dt / 2)
-            P = (H[i_add_dx][j] + H[i_sub_dx][j] + H[i][j_add_dy] + H[i][j_sub_dy] - 4 * H[i][j]) * pow(C, 2)
-            # P = (H[i_add_dx][j] + H[i_sub_dx][j] + H[i][j_add_dy] + H[i][j_sub_dy] - 4 * H[i][j] + 0.5 * (H[i_add_dx][j_add_dy] + H[i_sub_dx][j_sub_dy] + H[i_add_dx][j_add_dy] + H[i_sub_dx][j_sub_dy] - 4 * H[i][j] ) ) * pow(C, 2)
-            A = -(H[i][j] - old_H[i][j]) / dt + P
-            new_H[i][j] = A * pow(dt, 2) + 2 * H[i][j] - old_H[i][j]
-    old_H = np.copy(H)
-    H = np.copy(new_H)
-    ax.clear()
-    ax.set_zlim(0, 5)
+    H, old_H, new_H = sequential_update(H, old_H, new_H, grid, grid) 
+    # ax.clear()
+    # ax.set_zlim(0, 5)
     line = ax.plot_surface(X, Y, H)
     return line
 
-# ani = animation.FuncAnimation(fig, seq_update, fargs=(), interval=10, blit=False)
+# ani = animation.FuncAnimation(fig, seq_update, fargs=(), interval=1, blit=False)
 # plt.show()
 
 it = 0
-while(it < 50):
-    update(0)
+while(it < 10):
+    seq_update(0, line)
     it += 1
