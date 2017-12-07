@@ -94,10 +94,10 @@ def update(frame):
         new_H[grid - 1][i] = ( pow(C * dt, 2) * P4 * 2 + 4 * H[grid - 1][i] - old_H[grid - 1][i] * (2 - K * dt) ) / (2 + K * dt)
 
     # Four corners
-    P1 = H[0 + 1][0] + H[0][0 + 1] - 2 * H[0][0]
-    P2 = H[0 + 1][grid - 1] + H[0][grid - 2] - 2 * H[0][grid - 1]
-    P3 = H[grid - 2][0] + H[grid - 1][0 + 1] - 2 * H[grid - 1][0]
-    P4 = H[grid - 2][j] + H[grid - 1][grid - 2] - 2 * H[grid - 1][grid - 1]
+    P1 = H[1][0] + H[0][0 + 1] - 2 * H[0][0]
+    P2 = H[1][grid - 1] + H[0][grid - 2] - 2 * H[0][grid - 1]
+    P3 = H[grid - 2][0] + H[grid - 1][1] - 2 * H[grid - 1][0]
+    P4 = H[grid - 2][grid - 1] + H[grid - 1][grid - 2] - 2 * H[grid - 1][grid - 1]
     new_H[0][0] = ( pow(C * dt, 2) * P1 * 2 + 4 * H[0][0] - old_H[0][0] * (2 - K * dt) ) / (2 + K * dt)
     new_H[0][grid-1] = ( pow(C * dt, 2) * P2 * 2 + 4 * H[0][grid-1] - old_H[0][grid-1] * (2 - K * dt) ) / (2 + K * dt)
     new_H[grid-1][0] = ( pow(C * dt, 2) * P3 * 2 + 4 * H[grid-1][0] - old_H[grid-1][0] * (2 - K * dt) ) / (2 + K * dt)
