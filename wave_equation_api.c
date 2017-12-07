@@ -29,20 +29,24 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <omp.h>
 #include "wave_equation_api.h"
 
-#define C 12
-#define dt 0.05
-
 #define likely(x) __builtin_expect(!!(x), 1)
 #define unlikely(x) __builtin_expect(!!(x), 0)
 
-inline int select_add_index(const int index, const int max_edge) __attribute__((always_inline));
-inline int select_sub_index(const int index) __attribute__((always_inline));
-
-void c_sequential_update(double* data, double* olddata, double* newdata, int row_size, int col_size)
+void c_sequential_update(double* data, double* olddata, double* newdata, int row_size, int col_size, double C, double K, double dt)
 {
     // Check that data is not a null pointer
     if(data == NULL) {
-        fprintf(stderr, "[ERROR] 2D array 'data' is null \n");
+        fprintf(stderr, "[ERROR] array 'data' is null \n");
+        exit(EXIT_FAILURE);
+    }
+
+    if(olddata == NULL) {
+        fprintf(stderr, "[ERROR] array 'olddata' is null \n");
+        exit(EXIT_FAILURE);
+    }
+
+    if(newdata == NULL) {
+        fprintf(stderr, "[ERROR] array 'newdata' is null \n");
         exit(EXIT_FAILURE);
     }
 
@@ -58,28 +62,64 @@ void c_sequential_update(double* data, double* olddata, double* newdata, int row
         exit(EXIT_FAILURE);
     }
 
-    for(int i = 0; i < row_size; i++) {
-        for(int j = 0; j < col_size; j++) {
-            int i_add_dx = select_add_index(i, row_size);
-            int j_add_dy = select_add_index(j, col_size);
-            int i_sub_dx = select_sub_index(i);
-            int j_sub_dy = select_sub_index(j);
-            double potential = (data[i_add_dx * col_size + j] + data[i_sub_dx * col_size + j] +
-                                data[i * col_size + j_add_dy] + data[i * col_size + j_sub_dy] -
-                                4 * data[i * col_size + j]) * pow(C, 2);
-            double acceleration = -(data[i * col_size + j] - olddata[i * col_size + j]) / dt + potential;
-            double newvalue = acceleration * pow(dt, 2) + 2 * data[i * col_size + j] - olddata[i * col_size + j];
-            newdata[i * col_size + j] = newvalue;
+    // Central part
+    for(int i = 1; i < row_size - 1; i++) {
+        for(int j = 1; j < col_size - 1; j++) {
+            double potential = data[(i + 1) * col_size + j] + data[(i - 1) * col_size + j] + data[i * col_size + j + 1] +
+                               data[i * col_size + j - 1] - 4 * data[i * col_size + j];
+            newdata[i * col_size + j] = ( pow(C * dt, 2) * potential * 2 + 4 * data[i * col_size + j] - olddata[i * col_size + j] *
+                                          (2 - K * dt) ) / (2 + K * dt);
         }
     }
 
+    // Four edges
+    for(int i = 1; i < row_size - 1; i++) {
+        double P1 = data[(i + 1) * col_size] + data[(i - 1) * col_size] + data[i * col_size + 1] - 3 * data[i * col_size];
+        double P2 = data[(i + 1) * col_size + col_size - 1] + data[(i - 1) * col_size + col_size - 1] +
+                    data[i * col_size + col_size - 2] - 3 * data[i * col_size + col_size - 1];
+        double P3 = data[col_size + i] + data[i + 1] + data[i - 1] - 3 * data[i];
+        double P4 = data[(row_size - 2) * col_size + i] + data[(row_size - 1) * col_size + i + 1] +
+                    data[(row_size - 1) * col_size + i - 1] - 3 * data[(row_size - 1) * col_size + i];
+        newdata[i * col_size] = ( pow(C * dt, 2) * P1 * 2 + 4 * data[i * col_size] - olddata[i * col_size] *
+                                  (2 - K * dt) ) / (2 + K * dt);
+        newdata[i * col_size + col_size - 1] = ( pow(C * dt, 2) * P2 * 2 + 4 * data[i * col_size + col_size - 1] -
+                                               olddata[i * col_size + col_size - 1] * (2 - K * dt) ) / (2 + K * dt);
+        newdata[i] = ( pow(C * dt, 2) * P3 * 2 + 4 * data[i] - olddata[i] * (2 - K * dt) ) / (2 + K * dt);
+        newdata[(row_size - 1) * col_size + i] = ( pow(C * dt, 2) * P4 * 2 + 4 * data[(row_size - 1) * col_size + i] -
+                olddata[(row_size - 1) * col_size + i] * (2 - K * dt) ) / (2 + K * dt);
+    }
+
+    // Four corners
+    double P1 = data[col_size] + data[1] - 2 * data[0];
+    double P2 = data[col_size + col_size - 1] + data[col_size - 2] - 2 * data[col_size - 1];
+    double P3 = data[(row_size - 2) * col_size] + data[(row_size - 1) * col_size + 1] - 2 * data[(row_size - 1) * col_size];
+    double P4 = data[(row_size - 2) * col_size + col_size - 1] + data[(row_size - 1) * col_size + col_size - 2] - 2 *
+                data[(row_size - 1) * col_size + col_size - 1];
+    newdata[0] = ( pow(C * dt, 2) * P1 * 2 + 4 * data[0] - olddata[0] * (2 - K * dt) ) / (2 + K * dt);
+    newdata[col_size - 1] = ( pow(C * dt, 2) * P2 * 2 + 4 * data[col_size - 1] - olddata[col_size - 1] * (2 - K * dt) ) /
+                            (2 + K * dt);
+    newdata[(row_size - 1) * col_size] = ( pow(C * dt, 2) * P3 * 2 + 4 * data[(row_size - 1) * col_size] - olddata[(row_size - 1)
+                                           * col_size] * (2 - K * dt) ) / (2 + K * dt);
+    newdata[(row_size - 1) * col_size + col_size - 1] = ( pow(C * dt, 2) * P4 * 2 +
+            4 * data[(row_size - 1) * col_size + col_size - 1] - olddata[(row_size - 1) * col_size + col_size - 1] * (2 - K * dt) )
+            / (2 + K * dt);
 }
 
-void c_openmp_update(double* data, double* olddata, double* newdata, int row_size, int col_size)
+void c_openmp_update(double* data, double* olddata, double* newdata, int row_size, int col_size, double C, double K, double dt)
 {
     // Check that data is not a null pointer
     if(data == NULL) {
-        fprintf(stderr, "[ERROR] 2D array 'data' is null \n");
+        fprintf(stderr, "[ERROR] array 'data' is null \n");
+        exit(EXIT_FAILURE);
+    }
+
+    if(olddata == NULL) {
+        fprintf(stderr, "[ERROR] array 'olddata' is null \n");
+        exit(EXIT_FAILURE);
+    }
+
+    if(newdata == NULL) {
+        fprintf(stderr, "[ERROR] array 'newdata' is null \n");
         exit(EXIT_FAILURE);
     }
 
@@ -95,30 +135,47 @@ void c_openmp_update(double* data, double* olddata, double* newdata, int row_siz
         exit(EXIT_FAILURE);
     }
 
-    #pragma omp parallel for shared(row_size, col_size, data, olddata, newdata) collapse(2)
-    for(int i = 0; i < row_size; i++) {
-        for(int j = 0; j < col_size; j++) {
-            int i_add_dx = select_add_index(i, row_size);
-            int j_add_dy = select_add_index(j, col_size);
-            int i_sub_dx = select_sub_index(i);
-            int j_sub_dy = select_sub_index(j);
-            double potential = (data[i_add_dx * col_size + j] + data[i_sub_dx * col_size + j] +
-                                data[i * col_size + j_add_dy] + data[i * col_size + j_sub_dy] -
-                                4 * data[i * col_size + j]) * pow(C, 2);
-            double acceleration = -(data[i * col_size + j] - olddata[i * col_size + j]) / dt + potential;
-            double newvalue = acceleration * pow(dt, 2) + 2 * data[i * col_size + j] - olddata[i * col_size + j];
-            newdata[i * col_size + j] = newvalue;
+    // Central part
+    #pragma omp parallel for shared(row_size, col_size, newdata, data, olddata, C, K, dt) collapse(2)
+    for(int i = 1; i < row_size - 1; i++) {
+        for(int j = 1; j < col_size - 1; j++) {
+            double potential = data[(i + 1) * col_size + j] + data[(i - 1) * col_size + j] + data[i * col_size + j + 1] +
+                               data[i * col_size + j - 1] - 4 * data[i * col_size + j];
+            newdata[i * col_size + j] = ( pow(C * dt, 2) * potential * 2 + 4 * data[i * col_size + j] - olddata[i * col_size + j] *
+                                          (2 - K * dt) ) / (2 + K * dt);
         }
     }
 
-}
+    // Four edges
+    #pragma omp parallel for shared(row_size, col_size, newdata, data, olddata, C, K, dt)
+    for(int i = 1; i < row_size - 1; i++) {
+        double P1 = data[(i + 1) * col_size] + data[(i - 1) * col_size] + data[i * col_size + 1] - 3 * data[i * col_size];
+        double P2 = data[(i + 1) * col_size + col_size - 1] + data[(i - 1) * col_size + col_size - 1] +
+                    data[i * col_size + col_size - 2] - 3 * data[i * col_size + col_size - 1];
+        double P3 = data[col_size + i] + data[i + 1] + data[i - 1] - 3 * data[i];
+        double P4 = data[(row_size - 2) * col_size + i] + data[(row_size - 1) * col_size + i + 1] +
+                    data[(row_size - 1) * col_size + i - 1] - 3 * data[(row_size - 1) * col_size + i];
+        newdata[i * col_size] = ( pow(C * dt, 2) * P1 * 2 + 4 * data[i * col_size] - olddata[i * col_size] *
+                                  (2 - K * dt) ) / (2 + K * dt);
+        newdata[i * col_size + col_size - 1] = ( pow(C * dt, 2) * P2 * 2 + 4 * data[i * col_size + col_size - 1] -
+                                               olddata[i * col_size + col_size - 1] * (2 - K * dt) ) / (2 + K * dt);
+        newdata[i] = ( pow(C * dt, 2) * P3 * 2 + 4 * data[i] - olddata[i] * (2 - K * dt) ) / (2 + K * dt);
+        newdata[(row_size - 1) * col_size + i] = ( pow(C * dt, 2) * P4 * 2 + 4 * data[(row_size - 1) * col_size + i] -
+                olddata[(row_size - 1) * col_size + i] * (2 - K * dt) ) / (2 + K * dt);
+    }
 
-int select_add_index(const int index, const int max_edge)
-{
-    return unlikely(index + 1 >= max_edge) ? max_edge - 1 : index + 1;
-}
-
-int select_sub_index(const int index)
-{
-    return unlikely(index - 1 <= 0) ? 0 : index - 1;
+    // Four corners
+    double P1 = data[col_size] + data[1] - 2 * data[0];
+    double P2 = data[col_size + col_size - 1] + data[col_size - 2] - 2 * data[col_size - 1];
+    double P3 = data[(row_size - 2) * col_size] + data[(row_size - 1) * col_size + 1] - 2 * data[(row_size - 1) * col_size];
+    double P4 = data[(row_size - 2) * col_size + col_size - 1] + data[(row_size - 1) * col_size + col_size - 2] - 2 *
+                data[(row_size - 1) * col_size + col_size - 1];
+    newdata[0] = ( pow(C * dt, 2) * P1 * 2 + 4 * data[0] - olddata[0] * (2 - K * dt) ) / (2 + K * dt);
+    newdata[col_size - 1] = ( pow(C * dt, 2) * P2 * 2 + 4 * data[col_size - 1] - olddata[col_size - 1] * (2 - K * dt) ) /
+                            (2 + K * dt);
+    newdata[(row_size - 1) * col_size] = ( pow(C * dt, 2) * P3 * 2 + 4 * data[(row_size - 1) * col_size] - olddata[(row_size - 1)
+                                           * col_size] * (2 - K * dt) ) / (2 + K * dt);
+    newdata[(row_size - 1) * col_size + col_size - 1] = ( pow(C * dt, 2) * P4 * 2 +
+            4 * data[(row_size - 1) * col_size + col_size - 1] - olddata[(row_size - 1) * col_size + col_size - 1] * (2 - K * dt) )
+            / (2 + K * dt);
 }

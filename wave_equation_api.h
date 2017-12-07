@@ -27,7 +27,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #ifndef _WAVE_EQUATION_API_H_
 #define _WAVE_EQUATION_API_H_
 
-void c_sequential_update(double* data, double* olddata, double* newdata, int row_size, int col_size) __attribute__((hot));
-void c_openmp_update(double* data, double* olddata, double* newdata, int row_size, int col_size) __attribute__((hot));
+void c_sequential_update(double* data, double* olddata, double* newdata, int row_size, int col_size, double C, double K, double dt) __attribute__((hot));
+void c_openmp_update(double* data, double* olddata, double* newdata, int row_size, int col_size, double C, double K, double dt) __attribute__((hot));
 
 #endif
