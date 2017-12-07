@@ -1,3 +1,4 @@
+# -*- encoding:utf-8 -*-
 """
 Copyright (C) 2017 the team of Jim00000, ActKz and pityYo
 
@@ -22,10 +23,10 @@ from matplotlib import cm
 from mpl_toolkits.mplot3d import axes3d
 import matplotlib.animation as animation
 
-dt = 0.05
-C = 12
-K = 0.9
-height = 5
+dt = 0.04
+C = 16
+K = 0.1
+height = 6
 grid = 60
 
 old_H = np.zeros([grid, grid], dtype=np.float64)
@@ -72,50 +73,42 @@ ax.set_zlim(0, 5)
 # plt.show()
 # plt.close()
 
-def onclick(event):
-    global H, old_H, new_H
-    bbox = fig.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
-    width, height = bbox.width*fig.dpi, bbox.height*fig.dpi
-    print(event.x)
-    print(event.y)
-    x = -int(grid * (event.x / width))
-    y = int(grid * (event.y / height))
-    H[x, y] += 10
-
-# cid = fig.canvas.mpl_connect('button_press_event', onclick)
-
 def update(frame):
     global H, old_H, new_H
-    for i in range(grid):
-        for j in range(grid):
-            if i + 1 >= grid:
-                i_add_dx = grid - 1
-            else:
-                i_add_dx = i + 1
-            if i - 1 <= 0:
-                i_sub_dx = 0
-            else:
-                i_sub_dx = i - 1
-            if j + 1 >= grid:
-                j_add_dy = grid - 1
-            else:
-                j_add_dy = j + 1
-            if j - 1 <= 0:
-                j_sub_dy = 0
-            else:
-                j_sub_dy = j - 1
-            # D = H[i_add_dx][j] + H[i_sub_dx][j] + H[i][j_add_dy] + H[i][j_sub_dy]
-            # new_H[i][j] = (2 * H[i][j] + pow(C, 2) * (D - 4 * H[i][j]) + old_H[i][j] * (K * dt / 2 - 1) ) / (1 + K * dt / 2)
-            P = (H[i_add_dx][j] + H[i_sub_dx][j] + H[i][j_add_dy] + H[i][j_sub_dy] - 4 * H[i][j]) * pow(C, 2)
-            # P = (H[i_add_dx][j] + H[i_sub_dx][j] + H[i][j_add_dy] + H[i][j_sub_dy] - 4 * H[i][j] + 0.5 * (H[i_add_dx][j_add_dy] + H[i_sub_dx][j_sub_dy] + H[i_add_dx][j_add_dy] + H[i_sub_dx][j_sub_dy] - 4 * H[i][j] ) ) * pow(C, 2)
-            A = -(H[i][j] - old_H[i][j]) / dt + P
-            new_H[i][j] = A * pow(dt, 2) + 2 * H[i][j] - old_H[i][j]
+
+    # Centroid
+    for i in range(1, grid - 1):
+        for j in range(1, grid - 1):
+            P = H[i + 1][j] + H[i - 1][j] + H[i][j + 1] + H[i][j - 1] - 4 * H[i][j]
+            new_H[i][j] = ( pow(C * dt, 2) * P * 2 + 4 * H[i][j] - old_H[i][j] * (2 - K * dt) ) / (2 + K * dt)
+
+    # Four edges
+    for i in range(1, grid - 1):
+        P1 = H[i + 1][0] + H[i - 1][0] + H[i][1] - 3 * H[i][0]
+        P2 = H[i + 1][grid - 1] + H[i - 1][grid - 1] + H[i][grid - 2] - 3 * H[i][grid - 1]
+        P3 = H[0 + 1][i] + H[0][i + 1] + H[0][i - 1] - 3 * H[0][i]
+        P4 = H[grid - 2][i] + H[grid - 1][i + 1] + H[grid - 1][i - 1] - 3 * H[grid - 1][i]
+        new_H[i][0] = ( pow(C * dt, 2) * P1 * 2 + 4 * H[i][0] - old_H[i][0] * (2 - K * dt) ) / (2 + K * dt)
+        new_H[i][grid - 1] = ( pow(C * dt, 2) * P2 * 2 + 4 * H[i][grid - 1] - old_H[i][grid - 1] * (2 - K * dt) ) / (2 + K * dt)
+        new_H[0][i] = ( pow(C * dt, 2) * P3 * 2 + 4 * H[0][i] - old_H[0][i] * (2 - K * dt) ) / (2 + K * dt)
+        new_H[grid - 1][i] = ( pow(C * dt, 2) * P4 * 2 + 4 * H[grid - 1][i] - old_H[grid - 1][i] * (2 - K * dt) ) / (2 + K * dt)
+
+    # Four corners
+    P1 = H[0 + 1][0] + H[0][0 + 1] - 2 * H[0][0]
+    P2 = H[0 + 1][grid - 1] + H[0][grid - 2] - 2 * H[0][grid - 1]
+    P3 = H[grid - 2][0] + H[grid - 1][0 + 1] - 2 * H[grid - 1][0]
+    P4 = H[grid - 2][j] + H[grid - 1][grid - 2] - 2 * H[grid - 1][grid - 1]
+    new_H[0][0] = ( pow(C * dt, 2) * P1 * 2 + 4 * H[0][0] - old_H[0][0] * (2 - K * dt) ) / (2 + K * dt)
+    new_H[0][grid-1] = ( pow(C * dt, 2) * P2 * 2 + 4 * H[0][grid-1] - old_H[0][grid-1] * (2 - K * dt) ) / (2 + K * dt)
+    new_H[grid-1][0] = ( pow(C * dt, 2) * P3 * 2 + 4 * H[grid-1][0] - old_H[grid-1][0] * (2 - K * dt) ) / (2 + K * dt)
+    new_H[grid - 1][grid - 1] = ( pow(C * dt, 2) * P4 * 2 + 4 * H[grid - 1][grid - 1] - old_H[grid - 1][grid - 1] * (2 - K * dt) ) / (2 + K * dt)
+
     old_H = np.copy(H)
     H = np.copy(new_H)
     ax.clear()
     ax.set_zlim(0, 5)
-    line = ax.plot_surface(X, Y, H)
+    line = ax.plot_surface(X, Y, H, cmap=cm.ocean)
     return line
 
-ani = animation.FuncAnimation(fig, update, fargs=(), interval=10, blit=False)
+ani = animation.FuncAnimation(fig, update, fargs=(), interval=1, repeat=False, blit=False)
 plt.show()
