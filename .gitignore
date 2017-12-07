@@ -1,0 +1,14 @@
+# generated files from cython
+build/
+*.cpython-*.so
+*.so
+wave_equation.c
+
+# vscode configure
+.vscode/
+
+# test folder
+test/
+
+# test files
+test.py

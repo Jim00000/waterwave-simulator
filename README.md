@@ -21,11 +21,16 @@ and then we use a few parallel techniques to accelerate this program
 
 ## Build 
 
-Make sure that you have installed python3 and pip3
+Make sure that you have installed python2 and pip2
+python3 is incompatible
 
-`$ pip3 install -r requirements.txt` to install necessary libraries
+At first, install vtk and qt4
 
-TODO : this part is reserved.
+`$ sudo apt-get install python-vtk python-qt4 python-qt4-dev`
+
+`$ pip2 install -r requirements.txt` to install necessary libraries
+
+`$ sh build.sh` to build the shared library for wave_equation_api
 
 ## Authors
 
