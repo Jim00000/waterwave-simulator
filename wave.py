@@ -18,16 +18,13 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 import numpy as np
-from matplotlib import pyplot as plt
-from matplotlib import cm
-from mpl_toolkits.mplot3d import axes3d
-import matplotlib.animation as animation
+from mayavi import mlab
 
 dt = 0.04
 C = 16
 K = 0.1
 height = 6
-grid = 60
+grid = 200
 
 old_H = np.zeros([grid, grid], dtype=np.float64)
 H = np.ones([grid, grid], dtype=np.float64)
@@ -43,37 +40,14 @@ for i in range(sz):
 y = x.T
 
 TMP_H = height * np.exp(-5 * (x ** 2 + y ** 2))
-
-# half sphere
-# z = np.linspace(-2.1, 2.1, sz, dtype=np.float)
-# x = np.ones((sz, sz))
-# for i in range(sz):
-#     for j in range(sz):
-#         x[i][j] = z[i]
-# y = x.T
-
-# TMP_H = height / 7 * np.sqrt(9 - np.power(x, 2) - np.power(y, 2)) + 1
-# print(TMP_H)
-
 H[20:20+sz, 20:20+sz] += np.copy(TMP_H)
 old_H = np.copy(H)
 
 x = np.arange(grid)
 y = np.arange(grid)
 X, Y = np.meshgrid(x, y)
-fig = plt.figure()
-fig.canvas.set_window_title('Sequential in Python')
-ax = fig.add_subplot(111, projection='3d')
-line = ax.plot_surface(X, Y, H)
-ax.view_init(azim=210)
-plt.xlabel('x')
-plt.ylabel('y')
-ax.set_zlim(0, 5)
-# plt.ion()
-# plt.show()
-# plt.close()
 
-def update(frame):
+def update():
     global H, old_H, new_H
 
     # Centroid
@@ -105,10 +79,19 @@ def update(frame):
 
     old_H = np.copy(H)
     H = np.copy(new_H)
-    ax.clear()
-    ax.set_zlim(0, 5)
-    line = ax.plot_surface(X, Y, H, cmap=cm.ocean)
-    return line
 
-ani = animation.FuncAnimation(fig, update, fargs=(), interval=1, repeat=False, blit=False)
-plt.show()
+plt = mlab.surf(H, warp_scale='auto', colormap=u'ocean')
+
+@mlab.animate(delay=10)
+def animation():
+    f = mlab.gcf()
+    while True:
+        update()
+        plt.mlab_source.set(scalars=H)
+        f.scene.render()
+        yield
+
+
+animation()
+mlab.title('sequential in Python')
+mlab.show()

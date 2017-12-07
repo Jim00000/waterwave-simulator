@@ -17,17 +17,14 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 import numpy as np
-from matplotlib import pyplot as plt
-from matplotlib import cm
-from mpl_toolkits.mplot3d import axes3d
-import matplotlib.animation as animation
+from mayavi import mlab
 from wave_equation import openmp_update
 
-dt = 0.05
-C = 12
-K = 0.9
-height = 5
-grid = 60
+dt = 0.04
+C = 16
+K = 0.1
+height = 6
+grid = 200
 
 old_H = np.zeros([grid, grid], dtype=np.float64)
 H = np.ones([grid, grid], dtype=np.float64)
@@ -61,37 +58,22 @@ old_H = np.copy(H)
 x = np.arange(grid)
 y = np.arange(grid)
 X, Y = np.meshgrid(x, y)
-fig = plt.figure()
-fig.canvas.set_window_title('OpenMP in C')
-ax = fig.add_subplot(111, projection='3d')
-line = ax.plot_surface(X, Y, H)
-ax.view_init(azim=210)
-plt.xlabel('x')
-plt.ylabel('y')
-ax.set_zlim(0, 2)
-# plt.ion()
-# plt.show()
-# plt.close()
 
-def onclick(event):
+def omp_update():
     global H, old_H, new_H
-    bbox = fig.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
-    width, height = bbox.width*fig.dpi, bbox.height*fig.dpi
-    print(event.x)
-    print(event.y)
-    x = -int(grid * (event.x / width))
-    y = int(grid * (event.y / height))
-    H[x, y] += 10
+    H, old_H, new_H = openmp_update(H, old_H, new_H, grid, grid, C, K, dt) 
 
-# cid = fig.canvas.mpl_connect('button_press_event', onclick)
+plt = mlab.surf(H, warp_scale='auto', colormap=u'ocean')
 
-def omp_update(frame):
-    global H, old_H, new_H
-    H, old_H, new_H = openmp_update(H, old_H, new_H, grid, grid) 
-    ax.clear()
-    ax.set_zlim(0, 5)
-    line = ax.plot_surface(X, Y, H)
-    return line
+@mlab.animate(delay=10)
+def animation():
+    f = mlab.gcf()
+    while True:
+        omp_update()
+        plt.mlab_source.set(scalars=H)
+        f.scene.render()
+        yield
 
-ani = animation.FuncAnimation(fig, omp_update, fargs=(), interval=1, blit=False)
-plt.show()
+animation()
+mlab.title('openmp in C')
+mlab.show()
