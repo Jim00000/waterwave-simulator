@@ -27,7 +27,9 @@ setup(
         sources=["wave_equation.pyx", "wave_equation_api.cpp"],         # the Cython source and additional C source files
         language="c++",                                                 # the language
         libraries=["m"],                                                # linking libraries
-        extra_compile_args=["-std=c++11", "-O2", "-Wall", "-Wextra", "-fopenmp"],   # compiler flags
-        extra_link_args=["-fopenmp", "wave_equation_cuda_api.o", "-lcuda", "-lcudart"],       # link arguments
+        extra_compile_args=["-std=c++11", "-O2", "-Wall", "-Wextra", 
+        "-fopenmp"],                                                    # compiler flags
+        extra_link_args=["-fopenmp", "wave_equation_cuda_api.o",
+        "-lcuda", "-lcudart", "-lboost_system", "-lboost_thread"],      # link arguments
         include_dirs=[numpy.get_include()],                             # included directories
 )))

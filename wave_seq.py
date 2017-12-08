@@ -29,7 +29,7 @@ grid = 200
 old_H = np.zeros([grid, grid], dtype=np.float64)
 H = np.ones([grid, grid], dtype=np.float64)
 new_H = np.zeros([grid, grid], dtype=np.float64)
-sz = 31
+sz = 41
 
 # small peak
 z = np.linspace(-1,1,sz)
@@ -59,7 +59,7 @@ x = np.arange(grid)
 y = np.arange(grid)
 X, Y = np.meshgrid(x, y)
 
-def seq_update():
+def update():
     global H, old_H, new_H
     H, old_H, new_H = sequential_update(H, old_H, new_H, grid, grid, C, K, dt) 
 
@@ -69,7 +69,7 @@ plt = mlab.surf(H, warp_scale='auto', colormap=u'ocean')
 def animation():
     f = mlab.gcf()
     while True:
-        seq_update()
+        update()
         plt.mlab_source.set(scalars=H)
         f.scene.render()
         yield
