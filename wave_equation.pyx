@@ -24,6 +24,9 @@ cdef extern from "wave_equation_api.h":
     void c_sequential_update(double* data, double* olddata, double* newdata, int row_size, int col_size, double C, double K, double dt)
     void c_openmp_update(double* data, double* olddata, double* newdata, int row_size, int col_size, double C, double K, double dt)
 
+cdef extern from "wave_equation_cuda_api.h":
+    void c_cuda_update(double* data, double* olddata, double* newdata, int row_size, int col_size, double C, double K, double dt)
+
 def sequential_update(np.ndarray[double, ndim=2, mode="c"] data not None, np.ndarray[double, ndim=2, mode="c"] olddata not None, np.ndarray[double, ndim=2, mode="c"] newdata not None, row_size, col_size, C, K, dt):
     c_sequential_update(&data[0, 0], &olddata[0, 0], &newdata[0, 0], row_size, col_size, C, K, dt)
     olddata = np.copy(data)
@@ -32,6 +35,12 @@ def sequential_update(np.ndarray[double, ndim=2, mode="c"] data not None, np.nda
 
 def openmp_update(np.ndarray[double, ndim=2, mode="c"] data not None, np.ndarray[double, ndim=2, mode="c"] olddata not None, np.ndarray[double, ndim=2, mode="c"] newdata not None, row_size, col_size, C, K, dt):
     c_openmp_update(&data[0, 0], &olddata[0, 0], &newdata[0, 0], row_size, col_size, C, K, dt)
+    olddata = np.copy(data)
+    data = np.copy(newdata)
+    return data, olddata, newdata
+
+def cuda_update(np.ndarray[double, ndim=2, mode="c"] data not None, np.ndarray[double, ndim=2, mode="c"] olddata not None, np.ndarray[double, ndim=2, mode="c"] newdata not None, row_size, col_size, C, K, dt):
+    c_cuda_update(&data[0, 0], &olddata[0, 0], &newdata[0, 0], row_size, col_size, C, K, dt)
     olddata = np.copy(data)
     data = np.copy(newdata)
     return data, olddata, newdata
