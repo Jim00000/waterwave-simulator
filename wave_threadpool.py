@@ -18,7 +18,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 import numpy as np
 from mayavi import mlab
-from wave_equation import openmp_update
+from wave_equation import threadpool_update
 
 dt = 0.04
 C = 16
@@ -29,7 +29,7 @@ grid = 200
 old_H = np.zeros([grid, grid], dtype=np.float64)
 H = np.ones([grid, grid], dtype=np.float64)
 new_H = np.zeros([grid, grid], dtype=np.float64)
-sz = 31
+sz = 41
 
 # small peak
 z = np.linspace(-1,1,sz)
@@ -61,7 +61,8 @@ X, Y = np.meshgrid(x, y)
 
 def update():
     global H, old_H, new_H
-    H, old_H, new_H = openmp_update(H, old_H, new_H, grid, grid, C, K, dt) 
+    H, old_H, new_H = threadpool_update(H, old_H, new_H, grid, grid, C, K, dt)
+
 
 plt = mlab.surf(H, warp_scale='auto', colormap=u'ocean')
 
@@ -75,5 +76,5 @@ def animation():
         yield
 
 animation()
-mlab.title('openmp in C')
+mlab.title('threadpool in C')
 mlab.show()

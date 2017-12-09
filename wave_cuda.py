@@ -18,7 +18,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 import numpy as np
 from mayavi import mlab
-from wave_equation import openmp_update
+from wave_equation import cuda_update
 
 dt = 0.04
 C = 16
@@ -61,7 +61,7 @@ X, Y = np.meshgrid(x, y)
 
 def update():
     global H, old_H, new_H
-    H, old_H, new_H = openmp_update(H, old_H, new_H, grid, grid, C, K, dt) 
+    H, old_H, new_H = cuda_update(H, old_H, new_H, grid, grid, C, K, dt) 
 
 plt = mlab.surf(H, warp_scale='auto', colormap=u'ocean')
 

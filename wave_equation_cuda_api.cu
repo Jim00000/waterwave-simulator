@@ -1,4 +1,4 @@
-"""
+/*
 Copyright (C) 2017 the team of Jim00000, ActKz and pityYo
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software 
@@ -15,21 +15,26 @@ LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE A
 IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-"""
+*/
 
-from distutils.core import setup, Extension
-from Cython.Build import cythonize
-import numpy
+/**
+ * @file        wave_equation_cuda_api.cu
+ * @author      Jim00000
+ * @date        12.8.2017
+ */
 
-setup(
-    ext_modules = cythonize(Extension(
-        "wave_equation",                                                # the extension name
-        sources=["wave_equation.pyx", "wave_equation_api.cpp"],         # the Cython source and additional C source files
-        language="c++",                                                 # the language
-        libraries=["m"],                                                # linking libraries
-        extra_compile_args=["-std=c++11", "-O2", "-Wall", "-Wextra", 
-        "-fopenmp"],                                                    # compiler flags
-        extra_link_args=["-fopenmp", "wave_equation_cuda_api.o",
-        "-lcuda", "-lcudart", "-lboost_system", "-lboost_thread"],      # link arguments
-        include_dirs=[numpy.get_include()],                             # included directories
-)))
+#include <cstdio>
+#include <cstdlib>
+#include "wave_equation_cuda_api.h"
+
+__global__ void _cuda_update_kernal_(double* d_data, double* d_olddata, double* d_newdata, int row_size, int col_size, double C, double K, double dt);
+
+__global__ void _cuda_update_kernal_(double* d_data, double* d_olddata, double* d_newdata, int row_size, int col_size, double C, double K, double dt)
+{
+    /// TODO : implement it
+}
+
+void c_cuda_update(double* data, double* olddata, double* newdata, int row_size, int col_size, double C, double K, double dt)
+{
+	/// TODO : implement it
+}

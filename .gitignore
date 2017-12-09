@@ -1,8 +1,10 @@
 # generated files from cython
 build/
 *.cpython-*.so
+*.o
 *.so
 wave_equation.c
+wave_equation.cpp
 
 # vscode configure
 .vscode/

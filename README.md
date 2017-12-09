@@ -24,9 +24,9 @@ and then we use a few parallel techniques to accelerate this program
 Make sure that you have installed python2 and pip2
 python3 is incompatible
 
-At first, install vtk and qt4
+At first, install vtk, qt4, Boost library
 
-`$ sudo apt-get install python-vtk python-qt4 python-qt4-dev`
+`$ sudo apt-get install python-vtk python-qt4 python-qt4-dev libboost-dev-all`
 
 `$ pip2 install -r requirements.txt` to install necessary libraries
 
