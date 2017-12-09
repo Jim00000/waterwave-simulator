@@ -24,7 +24,7 @@ dt = 0.04
 C = 16
 K = 0.1
 height = 6
-grid = 2000
+grid = 200
 
 old_H = np.zeros([grid, grid], dtype=np.float64)
 H = np.ones([grid, grid], dtype=np.float64)
