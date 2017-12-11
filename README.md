@@ -35,6 +35,10 @@ At first, install vtk, qt4, Boost library
 
 `$ sh build.sh` to build the shared library for wave_equation_api
 
+## Demo
+
+![sequential_in_c_gif](https://i.imgur.com/LExDNgc.gif)
+
 ## Authors
 
 - [Jim00000](https://github.com/Jim00000)
