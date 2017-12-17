@@ -19,10 +19,13 @@ where parameters are
 
 and then we use a few parallel techniques to accelerate this program
 
+For more details, please refer [Wiki-The-theory-and-wave-equation](https://github.com/Jim00000/waterwave-simulator/wiki/The-theory-and-wave-equation)
+
 ## Build 
 
 Make sure that you have installed python2 and pip2
-python3 is incompatible
+
+Carefully, python3 is incompatible
 
 At first, install vtk, qt4, Boost library
 
@@ -31,6 +34,10 @@ At first, install vtk, qt4, Boost library
 `$ pip2 install -r requirements.txt` to install necessary libraries
 
 `$ sh build.sh` to build the shared library for wave_equation_api
+
+## Demo
+
+![sequential_in_c_gif](https://i.imgur.com/LExDNgc.gif)
 
 ## Authors
 

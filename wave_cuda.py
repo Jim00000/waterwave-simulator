@@ -29,7 +29,7 @@ grid = 200
 old_H = np.zeros([grid, grid], dtype=np.float64)
 H = np.ones([grid, grid], dtype=np.float64)
 new_H = np.zeros([grid, grid], dtype=np.float64)
-sz = 31
+sz = 41
 
 # small peak
 z = np.linspace(-1,1,sz)
@@ -75,5 +75,5 @@ def animation():
         yield
 
 animation()
-mlab.title('openmp in C')
+mlab.title('cuda in C')
 mlab.show()
