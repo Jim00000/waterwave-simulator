@@ -73,7 +73,7 @@ def animation():
         plt.mlab_source.set(scalars=H)
         f.scene.render()
         yield
-raw_input()
+
 animation()
 # mlab.title('sequential in C')
 mlab.show()
