@@ -47,6 +47,10 @@ In fact, it will work faster and more smoothly than the gif presented
 - [ActKz](https://github.com/ActKz)
 - [pityYo](https://github.com/pityYo)
 
+## References
+
+- [Y. Nishidate and G. P. Nikishkov, "Fast Water Animation Using the Wave Equation with Damping"](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.98.3126&rep=rep1&type=pdf)
+
 ## License
 
 Copyright (C) 2017 the team of Jim00000, ActKz and pityYo
