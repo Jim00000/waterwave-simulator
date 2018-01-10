@@ -37,7 +37,9 @@ At first, install vtk, qt4, Boost library
 
 ## Demo
 
-![sequential_in_c_gif](https://i.imgur.com/LExDNgc.gif)
+![sequential_gif](https://i.imgur.com/jKV2ShV.gif)
+
+In fact, it will work faster and more smoothly than the gif presented
 
 ## Authors
 

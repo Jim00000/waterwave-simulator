@@ -22,14 +22,14 @@ from wave_equation import sequential_update
 
 dt = 0.04
 C = 16
-K = 0.1
+K = 0
 height = 6
-grid = 200
+grid = 100
 
 old_H = np.zeros([grid, grid], dtype=np.float64)
 H = np.ones([grid, grid], dtype=np.float64)
 new_H = np.zeros([grid, grid], dtype=np.float64)
-sz = 41
+sz = 5
 
 # small peak
 z = np.linspace(-1,1,sz)
@@ -73,7 +73,7 @@ def animation():
         plt.mlab_source.set(scalars=H)
         f.scene.render()
         yield
-
+raw_input()
 animation()
-mlab.title('sequential in C')
+# mlab.title('sequential in C')
 mlab.show()
